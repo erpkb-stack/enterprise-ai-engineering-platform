@@ -107,6 +107,11 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.env == "production"
 
+    @property
+    def is_public(self) -> bool:
+        """staging = publicly hosted demo (demo data allowed); production = real use. Both are internet-facing."""
+        return self.env in ("staging", "production")
+
     def flag(self, name: str) -> bool:
         return bool(self.feature_flags.get(name, False))
 
@@ -114,6 +119,20 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     s = Settings()
-    if s.is_production and "dev-only" in s.jwt_secret.get_secret_value():
-        raise RuntimeError("Refusing to start in production with the development JWT secret")
+    if s.is_public:
+        problems = []
+        if "dev-only" in s.jwt_secret.get_secret_value() or len(s.jwt_secret.get_secret_value()) < 32:
+            problems.append("AIECC_JWT_SECRET is the development default or shorter than 32 chars")
+        if s.encryption_key.get_secret_value() == _DEV_ENCRYPTION_KEY:
+            problems.append("AIECC_ENCRYPTION_KEY is the development default")
+        if s.seed_demo_data and s.demo_password.get_secret_value() == _DEV_DEMO_PASSWORD:
+            problems.append("AIECC_DEMO_PASSWORD is the published default; set your own")
+        if s.env == "production" and s.seed_demo_data:
+            problems.append("AIECC_SEED_DEMO_DATA must be false in production (use AIECC_ENV=staging for a public demo)")
+        if problems:
+            raise RuntimeError("Refusing to start a publicly hosted instance: " + "; ".join(problems))
     return s
+
+
+_DEV_ENCRYPTION_KEY = "ZGV2LW9ubHktZW5jcnlwdGlvbi1rZXktMzJieXRlcyE="
+_DEV_DEMO_PASSWORD = "Aiecc!Demo2026"  # noqa: S105 - published default we refuse in public mode

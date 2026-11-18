@@ -14,6 +14,7 @@ models through **Ollama** or hosted providers (OpenAI, Anthropic, Gemini, NVIDIA
 - API: [`docs/api/README.md`](docs/api/README.md) (114 operations) · Swagger UI at `http://localhost:8100/docs`
 - Security: [`docs/security/threat-model.md`](docs/security/threat-model.md) · Ops: [`docs/operations`](docs/operations)
 - **Final engineering report: [`docs/ENGINEERING_REPORT.md`](docs/ENGINEERING_REPORT.md)**
+- **Deploy to a VPS (Hostinger) with HTTPS: [`deploy/hostinger/README.md`](deploy/hostinger/README.md)**
 
 ---
 

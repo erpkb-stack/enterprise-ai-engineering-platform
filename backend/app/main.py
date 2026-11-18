@@ -85,7 +85,7 @@ async def lifespan(app: FastAPI):
         async with get_engine().begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         log.warning("sqlite_quickstart_mode: schema created from metadata; use PostgreSQL for real deployments")
-    if s.seed_demo_data and s.env in ("local", "test"):
+    if s.seed_demo_data and s.env != "production":
         from app.seed.demo import seed_if_empty
 
         try:

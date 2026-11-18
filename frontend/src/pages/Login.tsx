@@ -54,7 +54,9 @@ export default function Login() {
           <Button type="submit" className="w-full" loading={busy}>Sign in</Button>
           <div className="rounded-lg border border-dashed p-3 text-[11px] text-muted-foreground">
             <div className="mb-1 font-medium text-foreground">Demo accounts (DEMO DATA)</div>
-            Password is in <code>README.md</code> / <code>.env.example</code> (<code>AIECC_DEMO_PASSWORD</code>). Roles:
+            {["localhost", "127.0.0.1"].includes(location.hostname)
+              ? <>Password is in <code>README.md</code> / <code>.env.example</code> (<code>AIECC_DEMO_PASSWORD</code>).</>
+              : <>Ask the administrator for the demo password.</>} Roles:
             <div className="mt-1.5 flex flex-wrap gap-1">
               {DEMO.map((d) => <button type="button" key={d} onClick={() => setEmail(d)} className="rounded bg-muted px-1.5 py-0.5 hover:bg-accent">{d.split("@")[0]}</button>)}
             </div>

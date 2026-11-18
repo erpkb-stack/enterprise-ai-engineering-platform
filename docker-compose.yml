@@ -1,14 +1,14 @@
 name: aiecc
 
 x-backend-env: &backend-env
-  AIECC_ENV: local
-  AIECC_DATABASE_URL: postgresql+asyncpg://aiecc:aiecc@postgres:5432/aiecc
+  AIECC_ENV: ${AIECC_ENV:-local}
+  AIECC_DATABASE_URL: postgresql+asyncpg://aiecc:${POSTGRES_PASSWORD:-aiecc}@postgres:5432/aiecc
   AIECC_REDIS_URL: redis://redis:6379/0
   AIECC_OLLAMA_BASE_URL: ${AIECC_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
   AIECC_JOBS_MODE: arq
-  AIECC_OTEL_ENABLED: "true"
+  AIECC_OTEL_ENABLED: ${AIECC_OTEL_ENABLED:-true}
   AIECC_OTEL_ENDPOINT: http://otel-collector:4318
-  AIECC_CORS_ORIGINS: http://localhost:5180,http://localhost:8180
+  AIECC_CORS_ORIGINS: ${AIECC_CORS_ORIGINS:-http://localhost:5180,http://localhost:8180}
   AIECC_JWT_SECRET: ${AIECC_JWT_SECRET:-dev-only-change-me-dev-only-change-me-0123456789}
   AIECC_ENCRYPTION_KEY: ${AIECC_ENCRYPTION_KEY:-ZGV2LW9ubHktZW5jcnlwdGlvbi1rZXktMzJieXRlcyE=}
   AIECC_EMBEDDING_PROVIDER: ${AIECC_EMBEDDING_PROVIDER:-mock}
@@ -17,13 +17,16 @@ x-backend-env: &backend-env
   AIECC_ANTHROPIC_API_KEY: ${AIECC_ANTHROPIC_API_KEY:-}
   AIECC_GEMINI_API_KEY: ${AIECC_GEMINI_API_KEY:-}
   AIECC_NVIDIA_NIM_API_KEY: ${AIECC_NVIDIA_NIM_API_KEY:-}
+  AIECC_SEED_DEMO_DATA: ${AIECC_SEED_DEMO_DATA:-true}
+  AIECC_DEMO_PASSWORD: ${AIECC_DEMO_PASSWORD:-Aiecc!Demo2026}
+  AIECC_RATE_LIMIT_PER_MINUTE: ${AIECC_RATE_LIMIT_PER_MINUTE:-600}
 
 services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: aiecc
-      POSTGRES_PASSWORD: aiecc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aiecc}
       POSTGRES_DB: aiecc
     ports: ["5442:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]

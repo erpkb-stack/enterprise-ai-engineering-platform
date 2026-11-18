@@ -14,3 +14,4 @@ test-results/
 playwright-report/
 scripts/loadtest/results/*
 !scripts/loadtest/results/.gitkeep
+.env.production

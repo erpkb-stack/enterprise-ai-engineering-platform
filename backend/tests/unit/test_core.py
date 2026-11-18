@@ -194,3 +194,23 @@ async def test_parse_action_tolerates_prose_and_fences():
     assert parse_action('I will call {"thought":"t","action":"tool","tool":"calc","arguments":{"a":{"b":1}}} now')["tool"] == "calc"
     assert parse_action("no json here") is None
     assert parse_action('{"action":"rm -rf"}') is None
+
+
+async def test_public_instances_refuse_dev_defaults(monkeypatch):
+    from app.core.config import get_settings
+
+    build = get_settings.__wrapped__
+    monkeypatch.setenv("AIECC_ENV", "staging")
+    with pytest.raises(RuntimeError, match="JWT_SECRET"):
+        build()
+    monkeypatch.setenv("AIECC_JWT_SECRET", "x" * 64)
+    monkeypatch.setenv("AIECC_ENCRYPTION_KEY", "q" * 43 + "=")
+    with pytest.raises(RuntimeError, match="DEMO_PASSWORD"):
+        build()
+    monkeypatch.setenv("AIECC_DEMO_PASSWORD", "Another-Strong-Pass-1")
+    assert build().is_public
+    monkeypatch.setenv("AIECC_ENV", "production")
+    with pytest.raises(RuntimeError, match="SEED_DEMO_DATA"):
+        build()
+    monkeypatch.setenv("AIECC_SEED_DEMO_DATA", "false")
+    assert build().is_production
