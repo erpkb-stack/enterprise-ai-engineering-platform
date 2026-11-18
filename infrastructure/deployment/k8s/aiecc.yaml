@@ -1,0 +1,80 @@
+# Reference Kubernetes manifests (not applied by default; see docs/operations/deployment.md).
+# Postgres (pgvector) and Redis are expected as managed services (e.g. RDS + ElastiCache) in production.
+apiVersion: v1
+kind: Namespace
+metadata: {name: aiecc}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: aiecc-config, namespace: aiecc}
+data:
+  AIECC_ENV: production
+  AIECC_JOBS_MODE: arq
+  AIECC_OTEL_ENABLED: "true"
+  AIECC_OTEL_ENDPOINT: http://otel-collector.observability:4318
+  AIECC_SEED_DEMO_DATA: "false"
+---
+# Secrets come from an external secret store (External Secrets Operator / CSI driver), never from git.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: aiecc-api, namespace: aiecc}
+spec:
+  replicas: 3
+  selector: {matchLabels: {app: aiecc-api}}
+  strategy: {rollingUpdate: {maxUnavailable: 0, maxSurge: 1}}
+  template:
+    metadata: {labels: {app: aiecc-api}}
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      initContainers:
+        - name: migrate
+          image: aiecc-backend:1.0.0
+          command: ["alembic", "upgrade", "head"]
+          envFrom: [{configMapRef: {name: aiecc-config}}, {secretRef: {name: aiecc-secrets}}]
+      containers:
+        - name: api
+          image: aiecc-backend:1.0.0
+          ports: [{containerPort: 8100}]
+          envFrom: [{configMapRef: {name: aiecc-config}}, {secretRef: {name: aiecc-secrets}}]
+          resources: {requests: {cpu: 500m, memory: 512Mi}, limits: {cpu: "2", memory: 1Gi}}
+          readinessProbe: {httpGet: {path: /ready, port: 8100}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /health, port: 8100}, periodSeconds: 15}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      volumes: [{name: tmp, emptyDir: {}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: aiecc-worker, namespace: aiecc}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: aiecc-worker}}
+  template:
+    metadata: {labels: {app: aiecc-worker}}
+    spec:
+      containers:
+        - name: worker
+          image: aiecc-backend:1.0.0
+          command: ["arq", "app.worker.WorkerSettings"]
+          envFrom: [{configMapRef: {name: aiecc-config}}, {secretRef: {name: aiecc-secrets}}]
+          resources: {requests: {cpu: 250m, memory: 512Mi}, limits: {cpu: "1", memory: 1Gi}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: aiecc-api, namespace: aiecc}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: aiecc-api}
+  minReplicas: 3
+  maxReplicas: 12
+  metrics: [{type: Resource, resource: {name: cpu, target: {type: Utilization, averageUtilization: 65}}}]
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: {name: aiecc-api, namespace: aiecc}
+spec: {minAvailable: 2, selector: {matchLabels: {app: aiecc-api}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: aiecc-api, namespace: aiecc}
+spec: {selector: {app: aiecc-api}, ports: [{port: 8100, targetPort: 8100}]}

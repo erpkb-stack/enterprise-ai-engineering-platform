@@ -1,0 +1,16 @@
+.DS_Store
+.env
+*.db
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+node_modules/
+dist/
+test-results/
+playwright-report/
+scripts/loadtest/results/*
+!scripts/loadtest/results/.gitkeep

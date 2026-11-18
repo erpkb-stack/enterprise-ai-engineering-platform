@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens. Brand: Roku purple #1F004B. Light & dark themes share semantic names. */
+:root {
+  --brand: #1f004b;
+  --brand-600: #3a0d82;
+  --brand-400: #6d3ff0;
+  --brand-200: #c9b6ff;
+  --background: #f7f6fb;
+  --foreground: #16131f;
+  --card: #ffffff;
+  --card-foreground: #16131f;
+  --muted: #f0eef6;
+  --muted-foreground: #5f5a70;
+  --border: #e3e0ec;
+  --input: #d9d5e4;
+  --primary: #1f004b;
+  --primary-foreground: #ffffff;
+  --accent: #efe8ff;
+  --accent-foreground: #1f004b;
+  --ring: #6d3ff0;
+  --success: #0f7b4a;
+  --warning: #a35c00;
+  --danger: #c0262d;
+  --info: #2457c5;
+  --sidebar: #1f004b;
+  --sidebar-foreground: #e9e2ff;
+  --chart-1: #6d3ff0;
+  --chart-2: #0ea5a4;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #1f004b;
+}
+
+.dark {
+  --background: #0e0b16;
+  --foreground: #ece8f6;
+  --card: #17121f;
+  --card-foreground: #ece8f6;
+  --muted: #211a2e;
+  --muted-foreground: #a59fb8;
+  --border: #2d2540;
+  --input: #3a3150;
+  --primary: #8b6cff;
+  --primary-foreground: #0e0b16;
+  --accent: #2a1f45;
+  --accent-foreground: #ddd3ff;
+  --ring: #8b6cff;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
+  --sidebar: #12002e;
+  --sidebar-foreground: #e9e2ff;
+  --chart-5: #c9b6ff;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-600: var(--brand-600);
+  --color-brand-400: var(--brand-400);
+  --color-brand-200: var(--brand-200);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+* { border-color: var(--border); }
+/* Grid items default to min-width:auto, letting long <pre>/code content blow out columns. */
+.grid > * { min-width: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+.react-flow__node { font-family: var(--font-sans); }
+.dark .react-flow__controls button { background: var(--card); color: var(--foreground); border-color: var(--border); }
+.dark .react-flow__minimap { background: var(--card); }
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }

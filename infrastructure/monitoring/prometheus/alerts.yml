@@ -1,0 +1,18 @@
+groups:
+  - name: aiecc-slo
+    rules:
+      - alert: AieccHighP95Latency
+        expr: histogram_quantile(0.95, sum(rate(aiecc_http_request_duration_seconds_bucket{synthetic="false"}[5m])) by (le)) > 1.5
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: "API p95 latency above 1.5s (organic traffic)"}
+      - alert: AieccErrorRate
+        expr: sum(rate(aiecc_http_request_duration_seconds_count{status_class="5xx"}[5m])) / sum(rate(aiecc_http_request_duration_seconds_count[5m])) > 0.02
+        for: 5m
+        labels: {severity: critical}
+        annotations: {summary: "5xx error rate above 2%"}
+      - alert: AieccExecutionQueueSaturated
+        expr: aiecc_execution_queue_depth > 50
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Agent execution queue near capacity (backpressure engaged)"}

@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "aiecc-backend",
+      "runtimeExecutable": "/Users/pbadhai/Documents/Job_Search_Claude/enterprise-ai-engineering-platform/scripts/dev-backend.sh",
+      "runtimeArgs": [],
+      "port": 8100
+    },
+    {
+      "name": "aiecc-backend-sqlite",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": [
+        "-c",
+        "cd '/Users/pbadhai/Documents/Job_Search_Claude/enterprise-ai-engineering-platform/backend' && AIECC_LOG_JSON=false AIECC_DATABASE_URL=sqlite+aiosqlite:///./aiecc-quickstart.db AIECC_REDIS_URL= exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8100"
+      ],
+      "port": 8100
+    },
+    {
+      "name": "aiecc-frontend",
+      "runtimeExecutable": "/Users/pbadhai/Documents/Job_Search_Claude/enterprise-ai-engineering-platform/scripts/dev-frontend.sh",
+      "runtimeArgs": [],
+      "port": 5180
+    }
+  ]
+}
