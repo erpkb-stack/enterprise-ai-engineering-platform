@@ -62,7 +62,7 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 8
 .dd-btn svg{width:16px;height:16px;transition:transform .2s}
 .dd:hover .dd-btn,.dd.open .dd-btn{color:var(--ink)}
 .dd:hover .dd-btn svg,.dd.open .dd-btn svg,.dd:focus-within .dd-btn svg{transform:rotate(180deg)}
-.dd-menu{position:absolute;top:100%;left:50%;transform:translate(-50%,6px);min-width:370px;padding:8px;border-radius:14px;background:var(--bg-2);border:1px solid var(--line);box-shadow:var(--shadow);opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;z-index:30}
+.dd-menu{position:absolute;top:100%;left:50%;transform:translate(-50%,6px);min-width:440px;padding:8px;border-radius:14px;background:var(--bg-2);border:1px solid var(--line);box-shadow:var(--shadow);opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;z-index:30}
 .dd-menu::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px}
 .dd:hover .dd-menu,.dd:focus-within .dd-menu,.dd.open .dd-menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
 .nav-links .dd-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;color:var(--ink)}
@@ -225,6 +225,16 @@ footer nav{display:flex;gap:22px}
         <button type="button" class="dd-btn" aria-expanded="false" aria-controls="workmenu">My Work
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="dd-menu" id="workmenu">
+          <a class="dd-item" href="https://llm-lab.groundwire.tech/" target="_blank" rel="noopener">
+            <span class="dd-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg></span>
+            <span><strong>LLM Engineering Lab <span aria-hidden="true">↗</span></strong>
+            <small>27 interactive modules on LLM architecture, inference, RAG, fine-tuning &amp; evaluation. Opens in a new tab.</small></span>
+          </a>
+          <a class="dd-item" href="https://ai-lab.groundwire.tech/" target="_blank" rel="noopener">
+            <span class="dd-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg></span>
+            <span><strong>Enterprise AI Solutions Architect Lab <span aria-hidden="true">↗</span></strong>
+            <small>Enterprise RAG, inference performance, solution design, GPU operations &amp; OEM validation on NVIDIA accelerated computing. Opens in a new tab.</small></span>
+          </a>
           <a class="dd-item" href="https://aiecc.groundwire.tech/" target="_blank" rel="noopener">
             <span class="dd-ico"><svg><use href="#gw-mark"/></svg></span>
             <span><strong>AI Engineering Command Center <span aria-hidden="true">↗</span></strong>
