@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GroundWire — AI Solutions Development</title>
+<meta name="description" content="GroundWire designs, builds and runs production AI systems: agents, retrieval, evaluation and the guardrails that make them safe to ship.">
+<meta property="og:title" content="GroundWire — AI Solutions Development">
+<meta property="og:description" content="Production AI, grounded in your data. Agents, RAG, evaluation and secure integration.">
+<meta property="og:url" content="https://groundwire.tech/">
+<meta name="theme-color" content="#0B1022">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F7FB; --bg-2:#FFFFFF; --ink:#0B1022; --ink-2:#3A4160; --muted:#646B88;
+  --line:#E3E4EF; --card:#FFFFFF; --violet:#6153F0; --signal:#0FA77F;
+  --grad:linear-gradient(120deg,#6E5FFF 0%,#14C496 100%);
+  --glow:rgba(110,95,255,.10); --shadow:0 1px 2px rgba(11,16,34,.04),0 8px 24px rgba(11,16,34,.06);
+  --mark-a:#6E5FFF; --mark-b:#14C496;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070A16; --bg-2:#0B1022; --ink:#EEF0FA; --ink-2:#C4C8DD; --muted:#8E94B3;
+    --line:#1C2240; --card:#0E1430; --violet:#9487FF; --signal:#2BE0B0;
+    --glow:rgba(123,108,255,.16); --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.35);
+    --mark-a:#8C7FFF; --mark-b:#1FE0AE;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#070A16; --bg-2:#0B1022; --ink:#EEF0FA; --ink-2:#C4C8DD; --muted:#8E94B3;
+  --line:#1C2240; --card:#0E1430; --violet:#9487FF; --signal:#2BE0B0;
+  --glow:rgba(123,108,255,.16); --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.35);
+  --mark-a:#8C7FFF; --mark-b:#1FE0AE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,.brand{font-family:"Space Grotesk",Inter,system-ui,sans-serif;letter-spacing:-.02em;line-height:1.15}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--violet)}
+.eyebrow::before{content:"";width:18px;height:2px;background:var(--grad);border-radius:2px}
+section{padding:96px 0}
+.section-head{max-width:680px;margin-bottom:48px}
+.section-head h2{font-size:clamp(28px,4vw,42px);margin:12px 0 14px}
+.section-head p{color:var(--muted);font-size:18px}
+
+/* nav */
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:700}
+.brand svg{width:32px;height:32px}
+.brand b{font-weight:700;color:var(--violet)}
+.nav-links{display:flex;align-items:center;gap:28px;font-size:15px;color:var(--ink-2)}
+.nav-links a:hover{color:var(--ink)}
+.dd{position:relative}
+.dd-btn{display:inline-flex;align-items:center;gap:4px;font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:8px 0}
+.dd-btn svg{width:16px;height:16px;transition:transform .2s}
+.dd:hover .dd-btn,.dd.open .dd-btn{color:var(--ink)}
+.dd:hover .dd-btn svg,.dd.open .dd-btn svg,.dd:focus-within .dd-btn svg{transform:rotate(180deg)}
+.dd-menu{position:absolute;top:100%;left:50%;transform:translate(-50%,6px);min-width:370px;padding:8px;border-radius:14px;background:var(--bg-2);border:1px solid var(--line);box-shadow:var(--shadow);opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;z-index:30}
+.dd-menu::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px}
+.dd:hover .dd-menu,.dd:focus-within .dd-menu,.dd.open .dd-menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.nav-links .dd-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;color:var(--ink)}
+.dd-item:hover,.dd-item:focus-visible{background:color-mix(in srgb,var(--violet) 8%,transparent)}
+.dd-item strong{display:block;font-size:15px;font-weight:600}
+.dd-item small{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45}
+.dd-ico{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--violet) 10%,transparent)}
+.dd-ico svg{width:22px;height:22px}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 22px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s;font-family:inherit}
+.btn-primary{background:var(--ink);color:var(--bg)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--glow)}
+.btn-ghost{border-color:var(--line);color:var(--ink);background:var(--bg-2)}
+.btn-ghost:hover{border-color:var(--violet)}
+.btn-sm{height:38px;padding:0 16px;font-size:14px;border-radius:10px}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg-2);color:var(--ink-2);display:grid;place-items:center;cursor:pointer}
+.icon-btn svg{width:18px;height:18px}
+.menu-btn{display:none}
+
+/* hero */
+.hero{position:relative;padding:88px 0 72px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:620px;background:radial-gradient(600px 300px at 75% 30%,var(--glow),transparent 70%),radial-gradient(500px 280px at 15% 10%,rgba(20,196,150,.08),transparent 70%);pointer-events:none}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(38px,6vw,66px);margin:18px 0 22px}
+.hero p.lead{font-size:clamp(17px,2vw,20px);color:var(--ink-2);max-width:560px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 30px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:13px;color:var(--ink-2);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg-2)}
+.hero-art{aspect-ratio:1/1;max-width:480px;width:100%;justify-self:center}
+.hero-art svg{width:100%;height:100%;overflow:visible}
+.flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-56}}
+.pulse{animation:pulse 3s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.9;transform:scale(1.25)}}
+@media (prefers-reduced-motion:reduce){.flow,.pulse{animation:none}}
+
+/* logos strip */
+.stack{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-2);padding:26px 0}
+.stack .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 34px;color:var(--muted);font-size:14px}
+.stack strong{color:var(--ink-2);font-weight:600}
+
+/* cards */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:var(--shadow);transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--violet) 45%,var(--line))}
+.card h3{font-size:20px;margin:18px 0 8px}
+.card p{color:var(--muted);font-size:15px}
+.card ul{list-style:none;margin-top:14px;display:grid;gap:6px;font-size:14px;color:var(--ink-2)}
+.card li::before{content:"→ ";color:var(--signal)}
+.ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--violet) 12%,transparent);color:var(--violet)}
+.ico svg{width:24px;height:24px}
+
+/* approach */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+.step{position:relative;padding:28px 24px;border-radius:18px;border:1px solid var(--line);background:var(--card)}
+.step::before{counter-increment:s;content:"0" counter(s);font-family:"Space Grotesk";font-weight:700;font-size:15px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.step h3{font-size:19px;margin:10px 0 8px}
+.step p{color:var(--muted);font-size:15px}
+.step small{display:block;margin-top:14px;font-size:13px;color:var(--ink-2);font-weight:500}
+
+/* principles */
+.principles{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.pr{background:var(--bg-2);padding:32px}
+.pr h3{font-size:20px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.pr h3 span{width:10px;height:10px;border-radius:3px;background:var(--grad)}
+.pr p{color:var(--muted)}
+
+/* work */
+.work{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:44px;box-shadow:var(--shadow)}
+.work h3{font-size:clamp(24px,3vw,32px);margin:12px 0 14px}
+.work p{color:var(--ink-2)}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 28px}
+.feat div{font-size:14px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--violet) 7%,transparent);color:var(--ink-2)}
+.console{border-radius:16px;background:#0B1022;border:1px solid #1C2240;padding:18px;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:#C4C8DD;overflow-x:auto;white-space:pre}
+.console .bar{display:flex;gap:6px;margin-bottom:14px}
+.console .bar i{width:10px;height:10px;border-radius:50%;background:#2A3157}
+.c-v{color:#9487FF}.c-g{color:#2BE0B0}.c-m{color:#6B7194}.c-y{color:#F5C46B}
+
+/* engagements */
+.eng .card{display:flex;flex-direction:column}
+.eng .card .tag{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--signal)}
+.eng .card.hl{border-color:color-mix(in srgb,var(--violet) 55%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 6%,var(--card)),var(--card))}
+
+/* contact */
+.contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+.contact h2{font-size:clamp(30px,4.4vw,46px);margin:12px 0 16px}
+.contact p{color:var(--ink-2);font-size:18px}
+.mail{display:inline-flex;align-items:center;gap:10px;margin-top:26px;font-size:20px;font-weight:600;font-family:"Space Grotesk"}
+.mail span{border-bottom:2px solid var(--violet)}
+form{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;gap:14px;box-shadow:var(--shadow)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:grid;gap:6px;font-size:14px;font-weight:500;color:var(--ink-2)}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--violet) 50%,transparent);border-color:var(--violet)}
+textarea{min-height:120px;resize:vertical}
+form .note{font-size:13px;color:var(--muted)}
+form .note.ok{color:var(--signal);font-weight:500;font-size:14px}
+form .note.err{color:#E5484D;font-weight:500;font-size:14px}
+form .btn:disabled{opacity:.7;cursor:default;transform:none}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+footer{border-top:1px solid var(--line);padding:36px 0;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center}
+footer nav{display:flex;gap:22px}
+
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+@media (max-width:960px){
+  .hero-grid,.work,.contact{grid-template-columns:1fr}
+  .hero-art{max-width:360px;order:-1}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr}
+}
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  section{padding:72px 0}
+  .nav-links{display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;padding:8px 16px 16px;background:var(--bg-2);border-bottom:1px solid var(--line)}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:12px 0;width:100%}
+  .dd{width:100%}
+  .dd-btn{width:100%;justify-content:space-between;padding:12px 0}
+  .dd-menu{position:static;transform:none;min-width:0;box-shadow:none;display:none;opacity:1;visibility:visible;margin:0 0 8px}
+  .dd.open .dd-menu{display:block;transform:none}
+  .dd:hover .dd-menu,.dd:focus-within .dd-menu{transform:none}
+  .nav-links .dd-item{padding:12px}
+  .menu-btn{display:grid}
+  .nav-cta .btn{display:none}
+  .grid-3,.steps,.pr-grid,.feat,.row{grid-template-columns:1fr}
+  .work{padding:26px}
+  .hero{padding:48px 0 56px}
+  .hero-art{max-width:280px}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gw-grad" gradientUnits="userSpaceOnUse" x1="8" y1="6" x2="56" y2="60">
+      <stop offset="0" style="stop-color:var(--mark-a)"/><stop offset="1" style="stop-color:var(--mark-b)"/>
+    </linearGradient>
+    <symbol id="gw-mark" viewBox="0 0 64 64">
+      <g fill="none" stroke="url(#gw-grad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 11 L32 24 L53 11"/><path d="M32 24 V41"/><path d="M15 43 H49"/><path d="M21 51 H43"/><path d="M27 59 H37"/>
+      </g>
+      <g fill="url(#gw-grad)"><circle cx="32" cy="24" r="7"/><circle cx="11" cy="11" r="5"/><circle cx="53" cy="11" r="5"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="brand" aria-label="GroundWire home"><svg><use href="#gw-mark"/></svg><span>Ground<b>Wire</b></span></a>
+    <nav class="nav-links" id="navlinks">
+      <a href="#services">Services</a><a href="#approach">Approach</a>
+      <div class="dd" id="workdd">
+        <button type="button" class="dd-btn" aria-expanded="false" aria-controls="workmenu">My Work
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="dd-menu" id="workmenu">
+          <a class="dd-item" href="https://aiecc.groundwire.tech/" target="_blank" rel="noopener">
+            <span class="dd-ico"><svg><use href="#gw-mark"/></svg></span>
+            <span><strong>AI Engineering Command Center <span aria-hidden="true">↗</span></strong>
+            <small>Agents, RAG, evaluation &amp; AI governance platform. Opens in a new tab.</small></span>
+          </a>
+        </div>
+      </div>
+      <a href="#engage">Engage</a><a href="#contact">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="icon-btn" id="theme" aria-label="Toggle colour theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <a class="btn btn-primary btn-sm" href="#contact">Start a project</a>
+      <button class="icon-btn menu-btn" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="navlinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">AI Solutions Development</span>
+      <h1>AI wired into your business. <span class="grad-text">Grounded in your data.</span></h1>
+      <p class="lead">GroundWire designs, builds and runs production AI systems: agents, retrieval, evaluation, and the guardrails that make them safe to ship.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#contact">Start a project</a>
+        <a class="btn btn-ghost" href="#work">See what we build</a>
+      </div>
+      <div class="chips"><span class="chip">Evaluation-first</span><span class="chip">Secure by design</span><span class="chip">Model-agnostic</span><span class="chip">Production-ready</span></div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g stroke="var(--line)" stroke-width="1.5" fill="none">
+          <circle cx="200" cy="170" r="150"/><circle cx="200" cy="170" r="100" stroke-dasharray="3 6"/>
+        </g>
+        <g fill="none" stroke="url(#gw-grad-hero)" stroke-width="2.5" stroke-linecap="round">
+          <path class="flow" d="M60 90 Q130 110 200 170"/><path class="flow" d="M340 90 Q270 110 200 170"/>
+          <path class="flow" d="M200 20 V170" style="animation-delay:-.8s"/><path class="flow" d="M80 220 Q140 200 200 170" style="animation-delay:-1.2s"/>
+          <path class="flow" d="M320 220 Q260 200 200 170" style="animation-delay:-.4s"/>
+          <path d="M200 170 V285"/><path d="M130 292 H270" stroke-width="5"/><path d="M155 318 H245" stroke-width="5"/><path d="M180 344 H220" stroke-width="5"/>
+        </g>
+        <defs><linearGradient id="gw-grad-hero" gradientUnits="userSpaceOnUse" x1="40" y1="20" x2="360" y2="360"><stop offset="0" style="stop-color:var(--mark-a)"/><stop offset="1" style="stop-color:var(--mark-b)"/></linearGradient></defs>
+        <g fill="var(--bg-2)" stroke="url(#gw-grad-hero)" stroke-width="2.5">
+          <circle cx="60" cy="90" r="11"/><circle cx="340" cy="90" r="11"/><circle cx="200" cy="20" r="9"/><circle cx="80" cy="220" r="9"/><circle cx="320" cy="220" r="9"/>
+        </g>
+        <circle class="pulse" cx="200" cy="170" r="34" fill="var(--glow)"/>
+        <circle cx="200" cy="170" r="20" fill="url(#gw-grad-hero)"/>
+        <g font-family="Inter,sans-serif" font-size="12" fill="var(--muted)" text-anchor="middle">
+          <text x="60" y="66">Your data</text><text x="340" y="66">Your tools</text><text x="80" y="248">Models</text><text x="320" y="248">Policies</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="stack"><div class="wrap">
+  <strong>Works with</strong><span>OpenAI</span><span>Anthropic</span><span>Google Gemini</span><span>NVIDIA NIM</span><span>Open-source models · Ollama</span><span>Model Context Protocol</span><span>PostgreSQL · pgvector</span>
+</div></div>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Services</span>
+      <h2>From first prototype to systems you can trust in production</h2>
+      <p>We build the parts that decide whether an AI project survives contact with real users: retrieval quality, evaluation, security and operations.</p>
+    </div>
+    <div class="grid-3">
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+        <h3>AI agents &amp; automation</h3><p>Agents that plan, call your tools and hand off to people, with clear limits on what they can do.</p>
+        <ul><li>Bounded multi-step agents</li><li>Human-in-the-loop approval</li><li>Workflow orchestration</li></ul></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11l5 5v9a1 1 0 0 1-1 1H4z"/><path d="M8 11h8M8 15h5"/></svg></div>
+        <h3>Knowledge &amp; RAG systems</h3><p>Assistants that answer from your documents and cite their sources, so every answer can be checked.</p>
+        <ul><li>Hybrid vector + keyword search</li><li>Verified citations</li><li>Retrieval debugging</li></ul></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg></div>
+        <h3>Evaluation &amp; quality</h3><p>Measure quality before launch and catch regressions after it, with test sets built from your real cases.</p>
+        <ul><li>Golden datasets &amp; metrics</li><li>A/B experiments with real statistics</li><li>Regression gates in CI</li></ul></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>AI security &amp; governance</h3><p>Red-teaming, access control and audit trails that hold up to a security review.</p>
+        <ul><li>Prompt-injection testing</li><li>Role-based access &amp; audit</li><li>Data-leak safeguards</li></ul></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 11l7.4-3.8M8.3 13l7.4 3.8"/></svg></div>
+        <h3>Integration &amp; MCP</h3><p>Connect models safely to your APIs, databases and SaaS tools, with an explicit allowlist and logged calls.</p>
+        <ul><li>Model Context Protocol servers</li><li>Policy-checked tool access</li><li>Secure credential handling</li></ul></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h3>LLMOps &amp; performance</h3><p>Latency, cost and reliability under control: monitoring, fallbacks and capacity planning.</p>
+        <ul><li>Tracing &amp; dashboards</li><li>Cost and latency tuning</li><li>Cloud, VPS or on-prem</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<section id="approach" style="padding-top:24px">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Approach</span>
+      <h2>A short path from idea to evidence</h2>
+      <p>We prove value early with a working prototype, then harden only what earns its place.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><h3>Discover</h3><p>Pick the use case with the clearest value, map the data, and define what "good" means.</p><small>Use-case brief &amp; success metrics</small></div>
+      <div class="step reveal"><h3>Prototype</h3><p>A working slice on your real data, measured against those metrics from day one.</p><small>Demo + evaluation report</small></div>
+      <div class="step reveal"><h3>Harden</h3><p>Security review, red-teaming, access control, monitoring and fallbacks.</p><small>Production-ready system</small></div>
+      <div class="step reveal"><h3>Run &amp; improve</h3><p>Ship, watch the numbers, and keep improving quality and cost with every release.</p><small>Dashboards &amp; regression gates</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="principles">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Why GroundWire</span>
+      <h2>Engineering principles we don't compromise on</h2>
+    </div>
+    <div class="pr-grid reveal">
+      <div class="pr"><h3><span></span>Grounded, not guessed</h3><p>Answers cite the sources they came from, and citations are checked against what was actually retrieved.</p></div>
+      <div class="pr"><h3><span></span>Measured before shipped</h3><p>Every system comes with an evaluation suite. If we can't measure an improvement, we don't claim one.</p></div>
+      <div class="pr"><h3><span></span>Secure by default</h3><p>Least-privilege tool access, encrypted secrets, tenant isolation and a tamper-evident audit log.</p></div>
+      <div class="pr"><h3><span></span>No lock-in</h3><p>Model-agnostic design: hosted APIs, open-source models, or fully on-prem, switchable as the market moves.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Our work</span>
+      <h2>We build our own tools first</h2>
+    </div>
+    <div class="work reveal">
+      <div>
+        <span class="eyebrow">Platform</span>
+        <h3>AI Engineering Command Center</h3>
+        <p>Our in-house platform for designing, running, evaluating and securing AI systems. It's the same engineering we bring to client projects.</p>
+        <div class="feat">
+          <div>Agents with bounded autonomy</div><div>MCP tool registry &amp; policies</div>
+          <div>RAG with verified citations</div><div>Evaluation &amp; red-team labs</div>
+          <div>A/B experiments</div><div>RBAC &amp; hash-chained audit</div>
+        </div>
+        <a class="btn btn-primary" href="https://aiecc.groundwire.tech" target="_blank" rel="noopener">Open the live platform ↗</a>
+      </div>
+      <div class="console" aria-label="Example agent trace">
+        <div class="bar"><i></i><i></i><i></i></div>
+<span class="c-m"># agent run · enterprise-research</span>
+<span class="c-v">route</span>   intent=incident_policy  score=0.91
+<span class="c-v">retrieve</span> hybrid(pgvector+fts) → 6 passages
+<span class="c-v">policy</span>  allow  ops/get_service_status
+<span class="c-v">tool</span>    checkout → <span class="c-g">operational</span>  142ms
+<span class="c-v">answer</span>  "Sev2 must be acknowledged within 15 min [1]"
+<span class="c-v">verify</span>  citations 1/1 <span class="c-g">grounded ✓</span>
+<span class="c-v">audit</span>   chain ok · <span class="c-y">p95 1.8s</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="engage" style="padding-top:24px">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Engage</span>
+      <h2>Ways to work with us</h2>
+    </div>
+    <div class="grid-3 eng">
+      <article class="card reveal"><span class="tag">Start here</span><h3>AI Readiness Sprint</h3><p>A focused assessment of your use cases, data and risks, ending with a prioritized roadmap and a first evaluation baseline.</p></article>
+      <article class="card hl reveal"><span class="tag">Most common</span><h3>Build &amp; Launch</h3><p>We design and deliver a production AI system end to end, from prototype through security review to go-live.</p></article>
+      <article class="card reveal"><span class="tag">Ongoing</span><h3>Embedded AI Team</h3><p>Senior AI engineers working alongside your team to ship, run and keep improving your AI products.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="principles">
+  <div class="wrap contact">
+    <div class="reveal">
+      <span class="eyebrow">Contact</span>
+      <h2>Let's build something <span class="grad-text">that holds up.</span></h2>
+      <p>Tell us what you're trying to achieve. We'll reply with honest next steps, including whether AI is the right tool for it.</p>
+      <a class="mail" href="mailto:contact@groundwire.tech">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        <span>contact@groundwire.tech</span></a>
+    </div>
+    <form id="cform" class="reveal" novalidate>
+      <div class="row">
+        <label>Name<input name="name" required autocomplete="name"></label>
+        <label>Company<input name="company" autocomplete="organization"></label>
+      </div>
+      <label>Work email<input name="email" type="email" required autocomplete="email"></label>
+      <label>What do you need?
+        <select name="topic"><option>AI agents &amp; automation</option><option>Knowledge / RAG assistant</option><option>Evaluation &amp; quality</option><option>AI security review</option><option>Integration / MCP</option><option>Not sure yet</option></select>
+      </label>
+      <label>Project details<textarea name="msg" required minlength="10" maxlength="5000" placeholder="Goals, timeline, data sources…"></textarea></label>
+      <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <button class="btn btn-primary" type="submit" id="csend">Send message</button>
+      <p class="note" id="cstatus" role="status" aria-live="polite">We usually reply within one business day.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="#top" class="brand" style="font-size:17px"><svg style="width:26px;height:26px"><use href="#gw-mark"/></svg><span>Ground<b>Wire</b></span></a>
+    <nav><a href="#services">Services</a><a href="#work">Work</a><a href="mailto:contact@groundwire.tech">contact@groundwire.tech</a></nav>
+    <span>© <span id="yr">2026</span> GroundWire. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, KEY='gw-theme';
+  try{var saved=localStorage.getItem(KEY); if(saved) root.setAttribute('data-theme',saved);}catch(e){}
+  document.getElementById('theme').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    var next=cur==='dark'?'light':'dark'; root.setAttribute('data-theme',next);
+    try{localStorage.setItem(KEY,next);}catch(e){}
+  });
+  var menu=document.getElementById('menu'), links=document.getElementById('navlinks');
+  menu.addEventListener('click',function(){var o=links.classList.toggle('open');menu.setAttribute('aria-expanded',o);});
+  var dd=document.getElementById('workdd'), ddBtn=dd.querySelector('.dd-btn');
+  function setDD(o){dd.classList.toggle('open',o);ddBtn.setAttribute('aria-expanded',o);}
+  ddBtn.addEventListener('click',function(e){e.stopPropagation();setDD(!dd.classList.contains('open'));});
+  dd.addEventListener('mouseenter',function(){if(matchMedia('(hover:hover) and (min-width:721px)').matches)ddBtn.setAttribute('aria-expanded','true');});
+  dd.addEventListener('mouseleave',function(){if(!dd.classList.contains('open'))ddBtn.setAttribute('aria-expanded','false');});
+  document.addEventListener('click',function(e){if(!dd.contains(e.target))setDD(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&dd.classList.contains('open')){setDD(false);ddBtn.focus();}});
+  links.addEventListener('click',function(e){if(e.target.closest('a')){setDD(false);links.classList.remove('open');menu.setAttribute('aria-expanded','false');}});
+  document.getElementById('yr').textContent=new Date().getFullYear();
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  } else document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  var cform=document.getElementById('cform'), csend=document.getElementById('csend'), cstatus=document.getElementById('cstatus'), t0=Date.now();
+  function setStatus(text,kind){cstatus.textContent=text;cstatus.className='note'+(kind?' '+kind:'');}
+  cform.addEventListener('submit',function(e){
+    e.preventDefault(); var f=cform;
+    if(!f.reportValidity()) return;
+    csend.disabled=true; csend.textContent='Sending…'; setStatus('');
+    fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name:f.name.value,company:f.company.value,email:f.email.value,topic:f.topic.value,message:f.msg.value,
+      website:f.website.value,elapsed_ms:Date.now()-t0})})
+    .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,j:j};});})
+    .then(function(res){
+      if(res.ok){f.reset();csend.textContent='Message sent ✓';setStatus('Thanks! Your message is on its way. We’ll reply to the email you gave us.','ok');return;}
+      throw new Error(res.j.error||'');
+    })
+    .catch(function(err){
+      csend.disabled=false;csend.textContent='Send message';
+      setStatus((err&&err.message?err.message:'Something went wrong sending your message.')+' You can also email contact@groundwire.tech.','err');
+    });
+  });
+})();
+</script>
+</body>
+</html>

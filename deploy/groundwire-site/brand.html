@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GroundWire Logo Concepts</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F7FB;--ink:#0B1022;--muted:#646B88;--line:#E3E4EF;--card:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#070A16;--ink:#EEF0FA;--muted:#8E94B3;--line:#1C2240;--card:#0E1430}}
+:root[data-theme="dark"]{--bg:#070A16;--ink:#EEF0FA;--muted:#8E94B3;--line:#1C2240;--card:#0E1430}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif;padding:48px 16px}
+.wrap{max-width:1100px;margin:0 auto}
+h1,h2{font-family:"Space Grotesk",sans-serif;letter-spacing:-.02em}
+h1{font-size:clamp(28px,4vw,40px)}
+.sub{color:var(--muted);margin:8px 0 36px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.c .tiles{display:grid;grid-template-columns:1fr 1fr}
+.t{aspect-ratio:1;display:grid;place-items:center}
+.t img{width:56%}
+.t.dk{background:#0B1022}.t.lt{background:#FFFFFF}
+.c .meta{padding:20px}
+.c h2{font-size:20px;display:flex;gap:10px;align-items:center}
+.c p{color:var(--muted);font-size:14px;margin-top:6px}
+.badge{font:600 11px Inter;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:linear-gradient(120deg,#6E5FFF,#14C496);color:#fff}
+.lockups{margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.lk{border-radius:18px;padding:40px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font:700 clamp(26px,4vw,40px) "Space Grotesk",sans-serif;letter-spacing:-.02em}
+.lk img{width:clamp(40px,6vw,58px)}
+.lk.dk{background:#0B1022;color:#EEF0FA}.lk.dk b{color:#9487FF}
+.lk.lt{background:#fff;color:#0B1022;border:1px solid var(--line)}.lk.lt b{color:#6153F0}
+.sw{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.sw div{flex:1 1 140px;border-radius:14px;padding:56px 14px 12px;font-size:13px;color:#fff;font-weight:500}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.lockups{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="wrap">
+<h1>GroundWire logo concepts</h1>
+<p class="sub">Three directions built on one idea: AI signals converging into a node and wired to <em>ground</em>, meaning reliable, evidence-based AI.</p>
+<div class="grid">
+  <div class="c"><div class="tiles"><div class="t dk"><img src="assets/logo/mark.svg" alt="Grounded Node on dark"></div><div class="t lt"><img src="assets/logo/mark.svg" alt="Grounded Node on light"></div></div>
+    <div class="meta"><h2>Grounded Node <span class="badge">Recommended</span></h2><p>Inputs converge into an AI node whose wire runs to the electrical ground symbol. Reads clearly at favicon size. Used on the site.</p></div></div>
+  <div class="c"><div class="tiles"><div class="t dk"><img src="assets/logo/mark-g-trace.svg" alt="G-Trace on dark"></div><div class="t lt"><img src="assets/logo/mark-g-trace.svg" alt="G-Trace on light"></div></div>
+    <div class="meta"><h2>G-Trace</h2><p>A "G" drawn as a circuit trace ending in a terminal node, with a small ground mark. Monogram-style; works well as an app icon.</p></div></div>
+  <div class="c"><div class="tiles"><div class="t dk"><img src="assets/logo/mark-hex.svg" alt="Hex Ground on dark"></div><div class="t lt"><img src="assets/logo/mark-hex.svg" alt="Hex Ground on light"></div></div>
+    <div class="meta"><h2>Hex Ground</h2><p>A hexagonal network cell with the ground symbol inside. More "infrastructure" in feel; suits a platform or product brand.</p></div></div>
+</div>
+<div class="lockups">
+  <div class="lk dk"><img src="assets/logo/mark.svg" alt=""><span>Ground<b>Wire</b></span></div>
+  <div class="lk lt"><img src="assets/logo/mark.svg" alt=""><span>Ground<b>Wire</b></span></div>
+</div>
+<div class="sw">
+  <div style="background:#0B1022">Ink #0B1022</div><div style="background:#6E5FFF">Violet #6E5FFF</div>
+  <div style="background:#14C496">Signal #14C496</div><div style="background:linear-gradient(120deg,#6E5FFF,#14C496)">Brand gradient</div>
+</div>
+</div></body></html>

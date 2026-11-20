@@ -21,10 +21,16 @@ systemctl enable --now docker >/dev/null 2>&1 || true
 # 2. Secrets (generated once, then reused) ------------------------------------------------
 if [ ! -f "$ENV_FILE" ]; then
   log "Generating $ENV_FILE with random secrets"
-  read -r -p "Public domain [$DOMAIN_DEFAULT]: " DOMAIN; DOMAIN="${DOMAIN:-$DOMAIN_DEFAULT}"
-  read -r -p "Email for Let's Encrypt notices: " EMAIL
+  # Answers can be passed as env vars (non-interactive): DOMAIN=… EMAIL=… MODE=staging|production
+  DOMAIN="${DOMAIN:-}"; EMAIL="${EMAIL:-}"; MODE="${MODE:-}"
+  if [ -z "$EMAIL" ] && [ ! -t 0 ]; then
+    echo "No interactive terminal. Re-run with:  ssh -t root@<vps> '...deploy.sh'"
+    echo "  or pass answers:  sudo EMAIL=you@example.com ./deploy/hostinger/deploy.sh"; exit 1
+  fi
+  [ -n "$DOMAIN" ] || { read -r -p "Public domain [$DOMAIN_DEFAULT]: " DOMAIN; DOMAIN="${DOMAIN:-$DOMAIN_DEFAULT}"; }
+  [ -n "$EMAIL" ] || read -r -p "Email for Let's Encrypt notices: " EMAIL
   [ -n "$EMAIL" ] || { echo "Email is required"; exit 1; }
-  read -r -p "Mode: 'staging' (public demo with demo users) or 'production' [staging]: " MODE; MODE="${MODE:-staging}"
+  [ -n "$MODE" ] || { read -r -p "Mode: 'staging' (public demo with demo users) or 'production' [staging]: " MODE; MODE="${MODE:-staging}"; }
   SEED=true; [ "$MODE" = "production" ] && SEED=false
   rnd() { openssl rand -base64 "$1" | tr -d '\n=+/' | cut -c1-"$2"; }
   DEMO_PW="Demo-$(rnd 24 12)-9a"
@@ -72,6 +78,9 @@ log "Building images (first run takes a few minutes)"
 "${COMPOSE[@]}" build
 log "Starting stack (profile: $PROFILE)"
 "${COMPOSE[@]}" up -d --remove-orphans
+# The Caddyfile is a single-file bind mount: an uploaded copy is a new inode that a running container never sees,
+# and `restart` keeps the old mount. Recreate Caddy so it always loads the current file (certificates persist in caddy_data).
+"${COMPOSE[@]}" up -d --force-recreate caddy
 
 # 6. Health -----------------------------------------------------------------------------------
 log "Waiting for the API to become healthy"

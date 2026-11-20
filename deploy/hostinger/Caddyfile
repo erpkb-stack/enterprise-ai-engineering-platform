@@ -16,3 +16,29 @@
 	# nginx (frontend container) serves the SPA and proxies /api, /docs, /ready and the WebSocket to the API
 	reverse_proxy frontend:80
 }
+
+# Company marketing site on the root domain (static files from deploy/groundwire-site); www redirects to it.
+{$APEX_DOMAIN:groundwire.tech} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	# contact form -> mail relay container
+	handle /api/contact {
+		request_body {
+			max_size 16KB
+		}
+		reverse_proxy contact:8080
+	}
+	handle {
+		root * /srv/groundwire
+		file_server
+	}
+}
+
+www.{$APEX_DOMAIN:groundwire.tech} {
+	redir https://{$APEX_DOMAIN:groundwire.tech}{uri} permanent
+}

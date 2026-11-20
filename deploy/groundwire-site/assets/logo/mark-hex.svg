@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GroundWire hex concept">
+  <defs><linearGradient id="gh" gradientUnits="userSpaceOnUse" x1="10" y1="4" x2="54" y2="60"><stop offset="0" stop-color="#7B6CFF"/><stop offset="1" stop-color="#19D3A2"/></linearGradient></defs>
+  <g fill="none" stroke="url(#gh)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 4 L56 18 V46 L32 60 L8 46 V18 Z" stroke-width="4"/>
+    <path d="M32 4 V26 M8 18 L32 26 L56 18 M32 26 V38" stroke-width="3"/>
+    <path d="M22 40 H42 M25.5 46 H38.5 M29 52 H35" stroke-width="3"/>
+  </g>
+  <circle cx="32" cy="26" r="5.5" fill="url(#gh)"/>
+</svg>
