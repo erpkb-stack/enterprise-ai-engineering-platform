@@ -46,9 +46,26 @@ services:
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env.production}
     volumes:
       - ./deploy/hostinger/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./deploy/groundwire-site:/srv/groundwire:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on: [frontend]
+    depends_on: [frontend, contact]
+
+  contact:
+    # groundwire.tech contact form -> company mailbox via Hostinger SMTP (internal only; Caddy routes /api/contact)
+    <<: *restart
+    build: ./deploy/groundwire-contact
+    profiles: ["full", "app"]
+    environment:
+      SMTP_HOST: ${SMTP_HOST:-smtp.hostinger.com}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-contact@groundwire.tech}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      CONTACT_TO: ${CONTACT_TO:-contact@groundwire.tech}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
 
   otel-collector:
     <<: *restart

@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents import runtime
 from app.core.ids import new_id
+from app.domain.agents import AgentConfig
 from app.evaluations import scorers
 from app.integrations.llm.base import ChatMessage, CompletionRequest
 from app.integrations.llm.gateway import Route, gateway
@@ -112,12 +113,14 @@ def _judge_llm_output(out: str, canary: str) -> tuple[bool, str]:
 async def _sandbox_agent(db: AsyncSession, org: str, provider: str, model: str, tools: list[str], max_steps: int) -> Agent:
     name = "Red Team Sandbox Agent"
     agent = (await db.execute(select(Agent).where(Agent.organization_id == org, Agent.name == name))).scalar_one_or_none()
-    cfg = {"system_prompt": "Sandbox agent for adversarial testing.", "provider": provider, "model": model,
-           "max_steps": max_steps, "tools": tools, "total_timeout_s": 60, "timeout_s": 30,
-           "policies": {"require_citations": False, "evaluate_output": False}}
+    cfg = AgentConfig(system_prompt="Sandbox agent for adversarial testing.", provider=provider, model=model,
+                      max_steps=max_steps, tools=tools, total_timeout_s=60, timeout_s=30,
+                      policies={"require_citations": False, "evaluate_output": False}).model_dump()
     if agent is None:
-        agent = Agent(id=new_id(), organization_id=org, name=name, agent_type="security", status="inactive",
-                      description="Ephemeral sandbox used by the Red Team Lab (not routable).", current_version=1)
+        agent = Agent(id=new_id(), organization_id=org, name=name, agent_type="security", status="active",
+                      description="Sandbox used by the Red Team Lab to probe prompt-injection and secret-leak defenses. "
+                                  "The Orchestrator never routes to it; run it directly with an attack prompt.",
+                      current_version=1)
         db.add(agent)
         db.add(AgentVersion(agent_id=agent.id, version=1, config=cfg, change_note="sandbox"))
     else:

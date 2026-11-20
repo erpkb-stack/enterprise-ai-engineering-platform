@@ -18,6 +18,7 @@ from app.models import (
     AgentVersion,
     ArchitectureDecisionRecord,
     ArchitectureDesign,
+    Document,
     EvaluationCase,
     EvaluationDataset,
     Experiment,
@@ -106,6 +107,49 @@ async def seed_rbac(db: AsyncSession) -> dict[str, Role]:
     return roles
 
 
+CODING_PROMPT = ("You are a staff Python engineer. Use knowledge_search for the team's coding guidance, "
+                 "cite it with [n], and be concise and precise.")
+
+
+async def _ingest_demo_docs(db: AsyncSession, org_id: str, user_id: str | None) -> int:
+    """Ingest every bundled demo document the org does not have yet (matched by filename). Returns how many were added."""
+    have = set((await db.execute(select(Document.filename).where(Document.organization_id == org_id,
+                                                                 Document.is_demo.is_(True)))).scalars())
+    added = 0
+    for f in sorted(DOCS.glob("*.md")):
+        if f.name in have:
+            continue
+        await ingest_document(db, org_id=org_id, user_id=user_id, filename=f.name, data=f.read_bytes(),
+                              collection="engineering", chunk_size=400, chunk_overlap=60, metadata={"source": "demo"},
+                              is_demo=True)
+        added += 1
+    return added
+
+
+async def _upgrade_demo_org(db: AsyncSession, org: Organization) -> None:
+    """Bring an already-seeded demo org up to date: new demo documents, and knowledge search for the Coding Agent."""
+    admin = (await db.execute(select(User).where(User.organization_id == org.id, User.email == "admin@aiecc.local"))).scalar_one_or_none()
+    added = await _ingest_demo_docs(db, org.id, admin.id if admin else None)
+    coding = (await db.execute(select(Agent).where(Agent.organization_id == org.id, Agent.name == "Coding Agent",
+                                                   Agent.is_demo.is_(True)))).scalar_one_or_none()
+    if coding:
+        cur = (await db.execute(select(AgentVersion).where(AgentVersion.agent_id == coding.id,
+                                                           AgentVersion.version == coding.current_version))).scalar_one_or_none()
+        if cur and not cur.config.get("tools"):
+            coding.current_version += 1
+            cfg = {**cur.config, "system_prompt": CODING_PROMPT, "tools": ["knowledge_search"], "max_steps": 3}
+            db.add(AgentVersion(agent_id=coding.id, version=coding.current_version, config=_agent_cfg_from(cfg),
+                                change_note="demo upgrade: knowledge search for coding guidance"))
+    if added or coding:
+        log.info("demo_data_upgraded docs_added=%s", added)
+
+
+def _agent_cfg_from(cfg: dict) -> dict:
+    from app.domain.agents import AgentConfig
+
+    return AgentConfig.model_validate(cfg).model_dump()
+
+
 def _agent_cfg(prompt: str, tools: list[str], **kw) -> dict:
     from app.domain.agents import AgentConfig
 
@@ -159,9 +203,7 @@ async def _seed_org(db: AsyncSession, roles: dict[str, Role]) -> Organization:
                        is_enabled=enabled, risk_level=risk, requires_approval=approval))
 
     # knowledge base
-    for f in sorted(DOCS.glob("*.md")):
-        await ingest_document(db, org_id=org.id, user_id=admin.id, filename=f.name, data=f.read_bytes(),
-                              collection="engineering", chunk_size=400, chunk_overlap=60, metadata={"source": "demo"}, is_demo=True)
+    await _ingest_demo_docs(db, org.id, admin.id)
 
     # agents
     research_tools = ["knowledge_search", "aiecc-demo-ops/get_service_status", "aiecc-demo-ops/list_incidents"]
@@ -177,8 +219,7 @@ async def _seed_org(db: AsyncSession, roles: dict[str, Role]) -> Organization:
          _agent_cfg("You are a security reviewer. Ground findings in the AI platform security standard.",
                     ["knowledge_search"], max_steps=4)),
         ("Coding Agent", "coding", "Explains async Python patterns and code-level tradeoffs.",
-         _agent_cfg("You are a staff Python engineer. Be concise and precise.", [], max_steps=2,
-                    policies={"require_citations": False})),
+         _agent_cfg(CODING_PROMPT, ["knowledge_search"], max_steps=3, policies={"require_citations": False})),
         ("Planning Agent", "planning", "Breaks engineering goals into milestones.",
          _agent_cfg("Produce a short, ordered plan.", ["knowledge_search"], max_steps=3)),
     ]
@@ -337,7 +378,9 @@ async def _seed_isolation_tenant(db: AsyncSession, roles: dict[str, Role]) -> No
 async def seed_if_empty() -> bool:
     async with get_sessionmaker()() as db:
         roles = await seed_rbac(db)
-        if (await db.execute(select(Organization).where(Organization.slug == "acme-demo"))).scalar_one_or_none():
+        existing = (await db.execute(select(Organization).where(Organization.slug == "acme-demo"))).scalar_one_or_none()
+        if existing:
+            await _upgrade_demo_org(db, existing)
             await db.commit()
             return False
         await _seed_org(db, roles)

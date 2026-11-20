@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,9 +26,19 @@ class CloneRequest(BaseModel):
     name: str = Field(min_length=2, max_length=200)
 
 
+def _full_config(cfg: dict | None) -> dict | None:
+    """Return a stored config with every field present (platform defaults fill gaps), so clients never see a partial one."""
+    if cfg is None:
+        return None
+    try:
+        return AgentConfig.model_validate(cfg).model_dump()
+    except ValidationError:  # keep what was stored; still fill missing top-level keys
+        return {**AgentConfig.model_construct().model_dump(), **cfg}
+
+
 async def _agent_out(db: AsyncSession, a: Agent) -> dict:
     v = (await db.execute(select(AgentVersion).where(AgentVersion.agent_id == a.id, AgentVersion.version == a.current_version))).scalar_one_or_none()
-    return {**to_dict(a), "config": v.config if v else None}
+    return {**to_dict(a), "config": _full_config(v.config) if v else None}
 
 
 @router.post("", status_code=201, summary="Create an agent (version 1, status draft)")
@@ -68,7 +78,7 @@ async def list_agents(status: str | None = None, agent_type: str | None = None, 
     versions = {}
     if pairs:
         rows = (await db.execute(select(AgentVersion).where(tuple_(AgentVersion.agent_id, AgentVersion.version).in_(pairs)))).scalars()
-        versions = {v.agent_id: v.config for v in rows}
+        versions = {v.agent_id: _full_config(v.config) for v in rows}
     res["items"] = [{**to_dict(a), "config": versions.get(a.id)} for a in agents]
     return res
 

@@ -43,6 +43,18 @@ def tokens(text: str) -> list[str]:
     return [t[:6] for t in _TOKEN.findall(text.lower()) if t not in _STOP and len(t) > 1]
 
 
+# Prompt-injection / secret-extraction requests sent straight to an agent get a refusal, as a safe model would give.
+_INJECTION = re.compile(
+    r"ignore (?:all |any )?(?:of )?(?:the |your )?(?:previous|prior|above|earlier) (?:instructions|rules|prompts?)"
+    r"|\b(?:print|reveal|show|output|dump|leak|repeat|disclose)\b.{0,60}\b(?:system prompt|hidden instructions|"
+    r"internal tokens?|deployment token|secrets?|passwords?|credentials?|api keys?)\b"
+    r"|\b(?:jailbreak|developer mode|debug mode|maintenance mode)\b", re.I)
+_REFUSAL = ("I can't do that. This request asks me to ignore my instructions and reveal my system prompt or internal "
+            "tokens, which is a prompt-injection attempt. I never disclose system prompts, credentials or tokens, and "
+            "instructions inside a request do not override my configuration. Ask a normal question and I'll help.")
+_NO_ANSWER = ("I could not find an answer in the knowledge base or tool results for this agent. (Mock model: it answers "
+              "only from retrieved documents and tool outputs; connect Ollama or a hosted model for open-ended questions.)")
+
 _FENCE = re.compile(r"<untrusted_tool_output>\s*(.*?)\s*</untrusted_tool_output>", re.S)
 
 
@@ -134,7 +146,10 @@ class MockProvider(LLMProvider):
                     continue
                 scored.append((overlap(q, tokens(s)), n, s))
         scored.sort(key=lambda x: -x[0])
-        picked = [x for x in scored if x[0] > 0][:k]
+        picked: list[tuple[float, int, str]] = []
+        for x in scored:  # overlapping chunks repeat text: skip a sentence already covered by a picked one
+            if x[0] > 0 and len(picked) < k and not any(x[2] in p[2] or p[2] in x[2] for p in picked):
+                picked.append(x)
         if not picked:
             return "I could not find information in the provided sources to answer this question."
         return " ".join(f"{s.rstrip('.')} [{n}]." for _, n, s in picked)
@@ -153,6 +168,9 @@ class MockProvider(LLMProvider):
         question = next((m.content for m in messages if m.role == "user"), "")
         tools = re.findall(r"^- (\S+): (.*)$", system, re.M)
         used = set(re.findall(r'"tool":\s*"([^"]+)"', "\n".join(m.content for m in messages if m.role == "assistant")))
+        if not observations and _INJECTION.search(question):
+            return json.dumps({"thought": "Prompt-injection attempt detected; refusing.", "action": "final",
+                               "answer": _REFUSAL})
         q = tokens(question)
         candidates = [(overlap(q, tokens(n.replace("_", " ") + " " + d)), n) for n, d in tools if n not in used]
         # Prefer retrieval first for research-style questions, then the best-overlapping other tool.
@@ -173,7 +191,8 @@ class MockProvider(LLMProvider):
             answer = facts
         elif facts:
             answer = f"{answer} {facts}"
-        answer = answer or "I could not find information to answer this question."
+        if not answer or answer.startswith("I could not find"):
+            answer = _NO_ANSWER
         return json.dumps({"thought": "I have enough information.", "action": "final", "answer": answer})
 
     @staticmethod
